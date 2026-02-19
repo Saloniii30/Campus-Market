@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { ShoppingCart, Trash2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CartCheckout from "@/components/CartCheckout";
 
 const CartPage = () => {
   const { items, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const totalInr = items.reduce((sum, item) => sum + item.priceInr * item.quantity, 0);
   const totalAlgo = items.reduce((sum, item) => sum + item.priceAlgo * item.quantity, 0);
@@ -73,8 +76,12 @@ const CartPage = () => {
               </div>
               <div className="flex gap-3 mt-6">
                 <Button variant="outline" onClick={clearCart} className="flex-1">Clear Cart</Button>
-                <Button className="flex-1">Checkout</Button>
+                <Button className="flex-1" onClick={() => setShowCheckout(true)}>Checkout</Button>
               </div>
+
+              {showCheckout && (
+                <CartCheckout totalAlgo={totalAlgo} onClose={() => setShowCheckout(false)} />
+              )}
             </div>
           </>
         )}
