@@ -64,24 +64,13 @@ const Navbar = ({ onSearchChange }: NavbarProps) => {
             </button>
           )}
 
-          {accountAddress ? (
-            <button
-              onClick={disconnectWallet}
-              className="flex items-center gap-2 bg-secondary/10 text-secondary border border-secondary/30 px-5 py-3 rounded-xl text-sm font-bold hover:bg-secondary/20 transition-all"
-              title={accountAddress}
-            >
-              <Wallet className="w-4 h-4" /> {shortAddr}
-              <Unplug className="w-3.5 h-3.5 ml-1 text-muted-foreground" />
-            </button>
-          ) : (
-            <button
-              onClick={connectWallet}
-              disabled={isConnecting}
-              className="flex items-center gap-2 bg-gradient-to-r from-secondary to-[hsl(230,70%,55%)] text-secondary-foreground px-5 py-3 rounded-xl text-sm font-bold hover:shadow-glow-blue hover:scale-[1.02] transition-all disabled:opacity-60"
-            >
-              <Wallet className="w-4 h-4" /> {isConnecting ? "Connecting…" : "Connect Wallet"}
-            </button>
-          )}
+          <button
+            disabled
+            className="flex items-center gap-2 bg-gradient-to-r from-secondary to-[hsl(230,70%,55%)] text-secondary-foreground px-5 py-3 rounded-xl text-sm font-bold opacity-60 cursor-not-allowed"
+            title="Wallet connect coming soon"
+          >
+            <Wallet className="w-4 h-4" /> Connect Wallet
+          </button>
         </div>
       </div>
     </nav>
