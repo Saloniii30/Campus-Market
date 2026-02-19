@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FiltersSidebar from "@/components/FiltersSidebar";
@@ -6,22 +7,29 @@ import CheckoutInfo from "@/components/CheckoutInfo";
 import { ShoppingBag } from "lucide-react";
 
 const Index = () => {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [priceRange, setPriceRange] = useState(100000);
+
   return (
     <div className="min-h-screen bg-background bg-mesh">
-      <Navbar />
+      <Navbar onSearchChange={setSearch} />
       <HeroSection />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-10">
         <div className="flex gap-6">
-          <FiltersSidebar />
-          <ProductGrid />
+          <FiltersSidebar
+            selectedCategory={category}
+            onCategoryChange={setCategory}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+          />
+          <ProductGrid search={search} category={category} maxPrice={priceRange < 100000 ? priceRange : undefined} />
         </div>
       </main>
 
       <CheckoutInfo />
 
-      {/* Footer */}
       <footer className="max-w-7xl mx-auto px-6 py-8 border-t border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -30,9 +38,7 @@ const Index = () => {
             </div>
             <span className="font-bold text-foreground">CampusMarket</span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            © 2026 CampusMarket. Built for students, powered by blockchain.
-          </p>
+          <p className="text-xs text-muted-foreground">© 2026 CampusMarket. Built for students, powered by blockchain.</p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms</a>
