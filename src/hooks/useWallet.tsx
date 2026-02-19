@@ -75,8 +75,23 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [accountAddress, user]);
 
+  const isInIframe = useCallback((): boolean => {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  }, []);
+
   const connectWallet = useCallback(async () => {
     if (accountAddress || !peraWalletRef.current) return;
+
+    // Pera Wallet / WalletConnect doesn't work inside iframes
+    if (isInIframe()) {
+      window.open(window.location.href, "_blank");
+      return;
+    }
+
     setIsConnecting(true);
     try {
       const accounts = await peraWalletRef.current.connect();
@@ -91,7 +106,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsConnecting(false);
     }
-  }, [accountAddress, handleDisconnect]);
+  }, [accountAddress, handleDisconnect, isInIframe]);
 
   const disconnectWallet = useCallback(() => {
     peraWalletRef.current?.disconnect();
