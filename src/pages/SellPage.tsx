@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreateProduct } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, ArrowLeft } from "lucide-react";
+
+const AuthRedirect = () => <Navigate to="/auth" state={{ from: "/sell" }} replace />;
 
 const categories = ["Books", "Electronics", "Furniture", "Clothing", "Sports", "Other"];
 
@@ -21,8 +23,7 @@ const SellPage = () => {
   const [uploading, setUploading] = useState(false);
 
   if (!user) {
-    navigate("/auth");
-    return null;
+    return <AuthRedirect />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

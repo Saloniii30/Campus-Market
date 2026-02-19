@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useMyProducts, useDeleteProduct } from "@/hooks/useProducts";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2, Edit, Plus, Loader2 } from "lucide-react";
 
 const DashboardPage = () => {
@@ -10,8 +10,7 @@ const DashboardPage = () => {
   const deleteProduct = useDeleteProduct();
 
   if (!user) {
-    navigate("/auth");
-    return null;
+    return <Navigate to="/auth" state={{ from: "/dashboard" }} replace />;
   }
 
   return (
