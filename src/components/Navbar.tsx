@@ -1,6 +1,7 @@
-import { Search, ShoppingBag, LayoutDashboard, ChevronDown, Wallet, LogIn, LogOut, PlusCircle } from "lucide-react";
+import { Search, ShoppingBag, LayoutDashboard, ChevronDown, Wallet, LogIn, LogOut, PlusCircle, Unplug } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useWallet } from "@/hooks/useWallet";
 import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
@@ -10,12 +11,17 @@ interface NavbarProps {
 const Navbar = ({ onSearchChange }: NavbarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
+  const { accountAddress, isConnecting, connectWallet, disconnectWallet } = useWallet();
   const navigate = useNavigate();
 
   const handleSearch = (val: string) => {
     setSearchQuery(val);
     onSearchChange?.(val);
   };
+
+  const shortAddr = accountAddress
+    ? `${accountAddress.slice(0, 4)}...${accountAddress.slice(-4)}`
+    : null;
 
   return (
     <nav className="sticky top-0 z-50 glass-strong border-b border-border/50 shadow-navbar">
@@ -57,9 +63,25 @@ const Navbar = ({ onSearchChange }: NavbarProps) => {
               <LogIn className="w-4 h-4" /> Sign In
             </button>
           )}
-          <button className="flex items-center gap-2 bg-gradient-to-r from-secondary to-[hsl(230,70%,55%)] text-secondary-foreground px-5 py-3 rounded-xl text-sm font-bold hover:shadow-glow-blue hover:scale-[1.02] transition-all">
-            <Wallet className="w-4 h-4" /> Connect Wallet
-          </button>
+
+          {accountAddress ? (
+            <button
+              onClick={disconnectWallet}
+              className="flex items-center gap-2 bg-secondary/10 text-secondary border border-secondary/30 px-5 py-3 rounded-xl text-sm font-bold hover:bg-secondary/20 transition-all"
+              title={accountAddress}
+            >
+              <Wallet className="w-4 h-4" /> {shortAddr}
+              <Unplug className="w-3.5 h-3.5 ml-1 text-muted-foreground" />
+            </button>
+          ) : (
+            <button
+              onClick={connectWallet}
+              disabled={isConnecting}
+              className="flex items-center gap-2 bg-gradient-to-r from-secondary to-[hsl(230,70%,55%)] text-secondary-foreground px-5 py-3 rounded-xl text-sm font-bold hover:shadow-glow-blue hover:scale-[1.02] transition-all disabled:opacity-60"
+            >
+              <Wallet className="w-4 h-4" /> {isConnecting ? "Connecting…" : "Connect Wallet"}
+            </button>
+          )}
         </div>
       </div>
     </nav>
