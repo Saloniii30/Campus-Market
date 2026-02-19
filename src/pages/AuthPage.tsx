@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LogIn, UserPlus, Mail, Lock, User, ArrowLeft } from "lucide-react";
 
 const AuthPage = () => {
@@ -13,6 +13,8 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ const AuthPage = () => {
     try {
       if (isLogin) {
         await signIn(email, password);
-        navigate("/");
+        navigate(from);
       } else {
         await signUp(email, password, fullName);
         setSuccess("Account created! Check your email to verify your account.");
