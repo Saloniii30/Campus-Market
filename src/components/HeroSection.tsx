@@ -1,4 +1,3 @@
-import heroIllustration from "@/assets/hero-illustration.png";
 import heroBg from "@/assets/hero-bg.png";
 import { ArrowRight, Sparkles } from "lucide-react";
 
@@ -62,15 +61,6 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Student Illustration */}
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-full bg-[hsl(0,0%,100%,0.15)] blur-2xl" />
-            <img
-              src={heroIllustration}
-              alt="Student with laptop"
-              className="relative w-[340px] h-auto animate-float drop-shadow-2xl"
-            />
-          </div>
         </div>
       </div>
 
