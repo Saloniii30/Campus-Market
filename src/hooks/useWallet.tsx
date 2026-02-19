@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import algosdk from "algosdk";
+import { PeraWalletConnect } from "@perawallet/connect";
 
 interface AsaOptions {
   assetIndex: number;
@@ -24,49 +25,41 @@ const WalletContext = createContext<WalletContextType>({
   signAndSendPayment: async () => ({ txId: "" }),
 });
 
-const WALLET_STORAGE_KEY = "campusmarket_algo_wallet";
 const ALGORAND_TESTNET = "https://testnet-api.4160.nodely.dev";
 const algodClient = new algosdk.Algodv2("", ALGORAND_TESTNET, "");
 
-// Store/retrieve wallet from localStorage
-const saveWallet = (addr: string, sk: Uint8Array) => {
-  localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify({
-    address: addr,
-    secretKey: Array.from(sk),
-  }));
-};
-
-const loadWallet = (): { address: string; secretKey: Uint8Array } | null => {
-  try {
-    const raw = localStorage.getItem(WALLET_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return {
-      address: parsed.address,
-      secretKey: new Uint8Array(parsed.secretKey),
-    };
-  } catch {
-    return null;
-  }
-};
-
-const clearWallet = () => {
-  localStorage.removeItem(WALLET_STORAGE_KEY);
-};
-
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
-  const [secretKey, setSecretKey] = useState<Uint8Array | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const { user } = useAuth();
+  const peraWalletRef = useRef<PeraWalletConnect | null>(null);
 
-  // Restore wallet on mount
+  // Initialize Pera Wallet instance
   useEffect(() => {
-    const stored = loadWallet();
-    if (stored) {
-      setAccountAddress(stored.address);
-      setSecretKey(stored.secretKey);
-    }
+    peraWalletRef.current = new PeraWalletConnect({
+      chainId: 416002, // TestNet
+    });
+
+    // Try to reconnect on mount
+    peraWalletRef.current
+      .reconnectSession()
+      .then((accounts) => {
+        if (accounts.length > 0) {
+          setAccountAddress(accounts[0]);
+          peraWalletRef.current?.connector?.on("disconnect", handleDisconnect);
+        }
+      })
+      .catch(() => {
+        // No previous session
+      });
+
+    return () => {
+      peraWalletRef.current?.connector?.off("disconnect");
+    };
+  }, []);
+
+  const handleDisconnect = useCallback(() => {
+    setAccountAddress(null);
   }, []);
 
   // Save wallet address to profile when connected & authenticated
@@ -83,26 +76,26 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, [accountAddress, user]);
 
   const connectWallet = useCallback(async () => {
-    if (accountAddress) return;
+    if (accountAddress || !peraWalletRef.current) return;
     setIsConnecting(true);
     try {
-      // Generate a new Algorand account in-browser
-      const account = algosdk.generateAccount();
-      const addr = account.addr.toString();
-      setAccountAddress(addr);
-      setSecretKey(account.sk);
-      saveWallet(addr, account.sk);
-    } catch (err) {
-      console.error("Failed to create wallet:", err);
+      const accounts = await peraWalletRef.current.connect();
+      if (accounts.length > 0) {
+        setAccountAddress(accounts[0]);
+        peraWalletRef.current.connector?.on("disconnect", handleDisconnect);
+      }
+    } catch (err: any) {
+      if (err?.data?.type !== "CONNECT_MODAL_CLOSED") {
+        console.error("Failed to connect wallet:", err);
+      }
     } finally {
       setIsConnecting(false);
     }
-  }, [accountAddress]);
+  }, [accountAddress, handleDisconnect]);
 
   const disconnectWallet = useCallback(() => {
+    peraWalletRef.current?.disconnect();
     setAccountAddress(null);
-    setSecretKey(null);
-    clearWallet();
   }, []);
 
   const signAndSendPayment = useCallback(async (
@@ -111,7 +104,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     note?: string,
     asaOptions?: AsaOptions,
   ): Promise<{ txId: string }> => {
-    if (!accountAddress || !secretKey) {
+    if (!accountAddress || !peraWalletRef.current) {
       throw new Error("Wallet not connected");
     }
 
@@ -119,7 +112,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
     let txn;
     if (asaOptions) {
-      // ASA (e.g. USDC) transfer
       txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         sender: accountAddress,
         receiver: receiverAddress,
@@ -129,7 +121,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         suggestedParams,
       });
     } else {
-      // Native ALGO transfer
       const microAlgos = Math.round(amountAlgo * 1_000_000);
       txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         sender: accountAddress,
@@ -140,11 +131,13 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       });
     }
 
-    const signedTxn = txn.signTxn(secretKey);
-    const { txid } = await algodClient.sendRawTransaction(signedTxn).do();
+    // Sign via Pera Wallet
+    const singleTxnGroup = [{ txn, signers: [accountAddress] }];
+    const signedTxns = await peraWalletRef.current.signTransaction([singleTxnGroup]);
+    const { txid } = await algodClient.sendRawTransaction(signedTxns[0]).do();
 
     return { txId: txid as string };
-  }, [accountAddress, secretKey]);
+  }, [accountAddress]);
 
   return (
     <WalletContext.Provider value={{ accountAddress, isConnecting, connectWallet, disconnectWallet, signAndSendPayment }}>

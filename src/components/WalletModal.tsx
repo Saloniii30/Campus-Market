@@ -47,7 +47,7 @@ const WalletModal = ({ open, onClose }: WalletModalProps) => {
             /* Not connected state */
             <>
               <p className="text-sm text-muted-foreground">
-                Generate an Algorand wallet instantly in your browser. No app or extension needed.
+                Connect your Pera Wallet or any WalletConnect-compatible wallet like Trust Wallet.
               </p>
 
               {/* Payment methods preview */}
@@ -81,11 +81,11 @@ const WalletModal = ({ open, onClose }: WalletModalProps) => {
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-secondary to-[hsl(230,70%,55%)] text-secondary-foreground px-6 py-3.5 rounded-xl text-sm font-bold hover:shadow-glow-blue hover:scale-[1.01] transition-all disabled:opacity-60"
               >
                 <Wallet className="w-4 h-4" />
-                {isConnecting ? "Generating Wallet…" : "Generate & Connect Wallet"}
+                {isConnecting ? "Connecting…" : "Connect with Pera Wallet"}
               </button>
 
               <p className="text-xs text-center text-muted-foreground">
-                🔒 Your keys are stored securely in your browser
+                🔒 Also works with Trust Wallet & other WalletConnect wallets
               </p>
             </>
           ) : (
