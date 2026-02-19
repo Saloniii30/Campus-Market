@@ -5,8 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useReviews, useCreateReview } from "@/hooks/useReviews";
 import { useBargains, useCreateBargain, useUpdateBargainStatus } from "@/hooks/useBargains";
 import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
-import { ArrowLeft, Heart, MapPin, Star, MessageSquare, Send, Check, X } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, Star, MessageSquare, Send, Check, X, ShoppingCart } from "lucide-react";
 import PayWithAlgo from "@/components/PayWithAlgo";
+import { useCart } from "@/hooks/useCart";
 import { useState } from "react";
 import type { Product } from "@/hooks/useProducts";
 
@@ -21,6 +22,7 @@ const ProductPage = () => {
   const { data: bargains = [] } = useBargains(id || "");
   const createBargain = useCreateBargain();
   const updateBargainStatus = useUpdateBargainStatus();
+  const { addToCart } = useCart();
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -128,6 +130,21 @@ const ProductPage = () => {
 
             {product.description && (
               <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
+            )}
+
+            {!isOwner && (
+              <button
+                onClick={() => addToCart({
+                  productId: product.id,
+                  title: product.title,
+                  priceInr: product.price_inr,
+                  priceAlgo: product.price_algo,
+                  imageUrl: product.image_url,
+                })}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-[hsl(170,55%,38%)] text-primary-foreground py-3 rounded-xl text-sm font-bold hover:shadow-glow-green hover:scale-[1.02] transition-all"
+              >
+                <ShoppingCart className="w-4 h-4" /> Add to Cart
+              </button>
             )}
 
             <div className="text-xs text-muted-foreground">

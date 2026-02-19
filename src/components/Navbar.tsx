@@ -1,7 +1,8 @@
-import { Search, ShoppingBag, LayoutDashboard, ChevronDown, Wallet, LogIn, LogOut, PlusCircle, Unplug } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart, LayoutDashboard, ChevronDown, Wallet, LogIn, LogOut, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
+import { useCart } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 import WalletModal from "@/components/WalletModal";
 
@@ -14,6 +15,7 @@ const Navbar = ({ onSearchChange }: NavbarProps) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { accountAddress, disconnectWallet } = useWallet();
+  const { totalItems } = useCart();
   const navigate = useNavigate();
 
   const handleSearch = (val: string) => {
@@ -49,6 +51,16 @@ const Navbar = ({ onSearchChange }: NavbarProps) => {
           </div>
 
           <div className="flex items-center gap-4 shrink-0">
+            {/* Cart Icon */}
+            <button onClick={() => navigate("/cart")} className="relative text-muted-foreground hover:text-foreground transition-colors" title="Cart">
+              <ShoppingCart className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
             {user ? (
               <>
                 <button onClick={() => navigate("/sell")} className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
