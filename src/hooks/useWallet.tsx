@@ -84,7 +84,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const connectWallet = useCallback(async () => {
-    if (accountAddress || !peraWalletRef.current) return;
+    if (accountAddress) return;
 
     // Pera Wallet / WalletConnect doesn't work inside iframes
     if (isInIframe()) {
@@ -94,6 +94,12 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
     setIsConnecting(true);
     try {
+      // Create a fresh instance for each connection attempt to avoid stale state
+      peraWalletRef.current = new PeraWalletConnect({
+        chainId: 416002,
+        shouldShowSignTxnToast: true,
+      });
+
       const accounts = await peraWalletRef.current.connect();
       if (accounts.length > 0) {
         setAccountAddress(accounts[0]);
