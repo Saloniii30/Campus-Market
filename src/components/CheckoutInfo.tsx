@@ -1,58 +1,40 @@
-import { Wallet, CreditCard, CheckCircle2, Shield } from "lucide-react";
+import { Wallet, CircleDollarSign, CheckCircle2, ArrowRight } from "lucide-react";
 
 const steps = [
-  {
-    icon: Wallet,
-    title: "Connect Wallet",
-    description: "Link your Algorand wallet in one click",
-  },
-  {
-    icon: CreditCard,
-    title: "Pay with ALGO or USDC",
-    description: "Choose your preferred cryptocurrency",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Transaction Confirmed",
-    description: "Instant confirmation on blockchain",
-  },
+  { icon: Wallet, title: "Connect Wallet", color: "bg-secondary" },
+  { icon: CircleDollarSign, title: "Pay with ALGO or USDC", color: "bg-primary" },
+  { icon: CheckCircle2, title: "Transaction Confirmed", color: "bg-primary" },
 ];
 
 const CheckoutInfo = () => {
   return (
-    <section className="max-w-7xl mx-auto px-4 py-16">
-      <div className="bg-card rounded-3xl p-10 shadow-card text-center">
-        <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
-          <Shield className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">Secure & Transparent</span>
-        </div>
+    <section className="max-w-7xl mx-auto px-4 py-10">
+      <div className="bg-card rounded-2xl px-8 py-6 shadow-card">
+        <h2 className="text-xl font-bold italic text-foreground mb-6">Easy Crypto Checkout</h2>
 
-        <h2 className="text-3xl font-bold text-foreground mb-2">Easy Crypto Checkout</h2>
-        <p className="text-muted-foreground mb-10">Three simple steps to complete your purchase</p>
-
-        {/* Steps */}
-        <div className="flex items-start justify-center gap-8 max-w-3xl mx-auto">
+        {/* Horizontal steps with arrows */}
+        <div className="flex items-center justify-center gap-4">
           {steps.map((step, i) => (
-            <div key={step.title} className="flex-1 flex flex-col items-center text-center relative">
-              {/* Connector line */}
-              {i < steps.length - 1 && (
-                <div className="absolute top-7 left-[60%] w-[80%] h-[2px] bg-border" />
-              )}
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 relative z-10">
-                <step.icon className="w-6 h-6 text-primary" />
+            <div key={step.title} className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl ${step.color} flex items-center justify-center`}>
+                  <step.icon className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="font-semibold text-sm text-foreground">{step.title}</span>
               </div>
-              <h3 className="font-semibold text-foreground text-sm mb-1">{step.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
+              {i < steps.length - 1 && (
+                <ArrowRight className="w-5 h-5 text-muted-foreground" />
+              )}
             </div>
           ))}
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-6 text-xs text-muted-foreground">
-          <span>🔗 Blockchain Verified</span>
+        <div className="mt-5 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <span>Blockchain Verified</span>
           <span>•</span>
-          <span>💸 No Platform Fees</span>
+          <span>No Platform Fees</span>
           <span>•</span>
-          <span>⚡ Instant Payments</span>
+          <span>Instant Payments</span>
         </div>
       </div>
     </section>
