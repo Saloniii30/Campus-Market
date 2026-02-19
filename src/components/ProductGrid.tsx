@@ -2,6 +2,7 @@ import { Heart, MapPin, Star, ShoppingCart, TrendingUp, Loader2 } from "lucide-r
 import { useProducts } from "@/hooks/useProducts";
 import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { useNavigate } from "react-router-dom";
 
 import productBook from "@/assets/product-book.jpg";
@@ -22,6 +23,7 @@ const ProductGrid = ({ search, category, maxPrice }: ProductGridProps) => {
   const { data: favorites = [] } = useFavorites();
   const toggleFav = useToggleFavorite();
   const { user } = useAuth();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const handleFav = (e: React.MouseEvent, productId: string) => {
@@ -112,10 +114,19 @@ const ProductGrid = ({ search, category, maxPrice }: ProductGridProps) => {
                   </div>
                 )}
                 <button
-                  onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.id}`); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart({
+                      productId: product.id,
+                      title: product.title,
+                      priceInr: product.price_inr,
+                      priceAlgo: product.price_algo,
+                      imageUrl: product.image_url,
+                    });
+                  }}
                   className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-[hsl(170,55%,38%)] text-primary-foreground py-2.5 rounded-xl text-xs font-bold hover:shadow-glow-green hover:scale-[1.02] transition-all"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5" /> View Details
+                  <ShoppingCart className="w-3.5 h-3.5" /> Add to Cart
                 </button>
               </div>
             </div>
