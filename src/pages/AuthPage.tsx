@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { LogIn, UserPlus, Mail, Lock, User } from "lucide-react";
+import { LogIn, UserPlus, Mail, Lock, User, ArrowLeft } from "lucide-react";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -37,6 +37,9 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen bg-background bg-mesh flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </button>
         <div className="bg-card rounded-3xl shadow-card border border-border/50 p-8 space-y-6">
           <div className="text-center space-y-2">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-[hsl(170,55%,38%)] flex items-center justify-center mx-auto shadow-glow-green">
