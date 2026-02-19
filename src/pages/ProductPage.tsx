@@ -6,6 +6,7 @@ import { useReviews, useCreateReview } from "@/hooks/useReviews";
 import { useBargains, useCreateBargain, useUpdateBargainStatus } from "@/hooks/useBargains";
 import { useFavorites, useToggleFavorite } from "@/hooks/useFavorites";
 import { ArrowLeft, Heart, MapPin, Star, MessageSquare, Send, Check, X } from "lucide-react";
+import PayWithAlgo from "@/components/PayWithAlgo";
 import { useState } from "react";
 import type { Product } from "@/hooks/useProducts";
 
@@ -134,6 +135,18 @@ const ProductPage = () => {
             </div>
           </div>
         </div>
+
+        {/* ALGO Payment Section */}
+        {!isOwner && product.price_algo > 0 && (
+          <div className="mt-8">
+            <PayWithAlgo
+              productId={product.id}
+              priceAlgo={product.price_algo}
+              sellerUserId={product.user_id}
+              productTitle={product.title}
+            />
+          </div>
+        )}
 
         {/* Bargain / Make Offer Section */}
         {user && !isOwner && (

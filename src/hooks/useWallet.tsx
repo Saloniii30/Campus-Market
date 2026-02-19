@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { PeraWalletConnect } from "@perawallet/connect";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface WalletContextType {
   accountAddress: string | null;
   isConnecting: boolean;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
+  peraWallet: PeraWalletConnect;
 }
 
 const WalletContext = createContext<WalletContextType>({
@@ -13,6 +16,7 @@ const WalletContext = createContext<WalletContextType>({
   isConnecting: false,
   connectWallet: async () => {},
   disconnectWallet: () => {},
+  peraWallet: null as any,
 });
 
 const peraWallet = new PeraWalletConnect({
@@ -23,6 +27,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const isConnectedRef = useRef(false);
+  const { user } = useAuth();
+
+  // Save wallet address to profile when connected & authenticated
+  useEffect(() => {
+    if (accountAddress && user) {
+      supabase
+        .from("profiles")
+        .update({ wallet_address: accountAddress } as any)
+        .eq("id", user.id)
+        .then(({ error }) => {
+          if (error) console.error("Failed to save wallet address:", error);
+        });
+    }
+  }, [accountAddress, user]);
 
   const handleDisconnect = useCallback(() => {
     peraWallet.disconnect();
@@ -30,7 +48,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     isConnectedRef.current = false;
   }, []);
 
-  // Reconnect on mount if session exists
   useEffect(() => {
     peraWallet
       .reconnectSession()
@@ -41,9 +58,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
           peraWallet.connector?.on("disconnect", handleDisconnect);
         }
       })
-      .catch(() => {
-        // No existing session — ignore
-      });
+      .catch(() => {});
   }, [handleDisconnect]);
 
   const connectWallet = useCallback(async () => {
@@ -68,7 +83,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, [handleDisconnect]);
 
   return (
-    <WalletContext.Provider value={{ accountAddress, isConnecting, connectWallet, disconnectWallet }}>
+    <WalletContext.Provider value={{ accountAddress, isConnecting, connectWallet, disconnectWallet, peraWallet }}>
       {children}
     </WalletContext.Provider>
   );
