@@ -15,7 +15,7 @@ interface PayWithAlgoProps {
 type PaymentStatus = "idle" | "loading" | "success" | "error";
 
 const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWithAlgoProps) => {
-  const { accountAddress, connectWallet, signTransaction } = useWallet();
+  const { accountAddress, connectWallet, signAndSendPayment } = useWallet();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState<PaymentStatus>("idle");
@@ -47,13 +47,12 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
         throw new Error("Seller has not connected a wallet yet. Payment cannot proceed.");
       }
 
-      // Sign mock transaction
-      const result = await signTransaction({
-        sender: accountAddress,
-        receiver: sellerAddress,
-        amount: priceAlgo,
-        note: `CampusMarket: ${productTitle} (${productId})`,
-      });
+      // Sign and send the transaction
+      const result = await signAndSendPayment(
+        sellerAddress,
+        priceAlgo,
+        `CampusMarket: ${productTitle} (${productId})`,
+      );
 
       setTxId(result.txId);
       setStatus("success");
@@ -71,7 +70,7 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
 
       <div className="flex items-baseline gap-3 mb-4">
         <span className="text-2xl font-black text-foreground">{priceAlgo} ALGO</span>
-        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-warning/10 text-warning">Demo Mode</span>
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-secondary/10 text-secondary">Algorand TestNet</span>
       </div>
 
       {status === "idle" && (
@@ -86,7 +85,7 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
 
       {status === "loading" && (
         <div className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground px-6 py-3.5 rounded-xl text-sm font-semibold">
-          <Loader2 className="w-4 h-4 animate-spin" /> Processing transaction…
+          <Loader2 className="w-4 h-4 animate-spin" /> Signing & submitting transaction…
         </div>
       )}
 
@@ -95,9 +94,14 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
           <div className="flex items-center gap-2 text-primary font-semibold">
             <CheckCircle2 className="w-5 h-5" /> Payment Successful!
           </div>
-          <p className="text-sm text-muted-foreground break-all">
-            Transaction ID: <span className="font-mono text-foreground">{txId.slice(0, 16)}…</span>
-          </p>
+          <a
+            href={`https://testnet.explorer.perawallet.app/tx/${txId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-sm text-secondary hover:underline break-all"
+          >
+            View on Explorer: {txId.slice(0, 16)}…
+          </a>
           <button
             onClick={() => { setStatus("idle"); setTxId(null); }}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
