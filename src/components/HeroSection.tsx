@@ -1,7 +1,9 @@
 import heroBg from "@/assets/hero-bg.png";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative overflow-hidden">
       {/* Background Image */}
@@ -36,10 +38,10 @@ const HeroSection = () => {
           </p>
 
           <div className="flex items-center gap-4 pt-2">
-            <button className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-sm font-bold hover:scale-105 transition-all shadow-glow-green">
+            <button onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })} className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-sm font-bold hover:scale-105 transition-all shadow-glow-green">
               Browse Items <ArrowRight className="w-4 h-4" />
             </button>
-            <button className="flex items-center gap-2 glass-strong text-foreground border border-[hsl(0,0%,100%,0.4)] px-8 py-4 rounded-xl text-sm font-bold hover:scale-105 transition-all shadow-soft">
+            <button onClick={() => navigate("/sell")} className="flex items-center gap-2 glass-strong text-foreground border border-[hsl(0,0%,100%,0.4)] px-8 py-4 rounded-xl text-sm font-bold hover:scale-105 transition-all shadow-soft">
               Sell an Item
             </button>
           </div>
