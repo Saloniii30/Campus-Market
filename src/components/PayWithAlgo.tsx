@@ -3,7 +3,6 @@ import { useWallet } from "@/hooks/useWallet";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import algosdk from "algosdk";
 import { Wallet, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface PayWithAlgoProps {
@@ -15,10 +14,8 @@ interface PayWithAlgoProps {
 
 type PaymentStatus = "idle" | "loading" | "success" | "error";
 
-const ALGORAND_TESTNET = "https://testnet-api.4160.nodely.dev";
-
 const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWithAlgoProps) => {
-  const { accountAddress, connectWallet, peraWallet } = useWallet();
+  const { accountAddress, connectWallet, signTransaction } = useWallet();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState<PaymentStatus>("idle");
@@ -37,49 +34,30 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
     setError(null);
 
     try {
-      // 1. Get seller's wallet address from their profile
+      // Get seller's wallet address
       const { data: sellerProfile, error: profileErr } = await supabase
         .from("profiles")
         .select("wallet_address")
         .eq("id", sellerUserId)
         .single();
 
-      if (profileErr || !(sellerProfile as any)?.wallet_address) {
+      const sellerAddress = (sellerProfile as any)?.wallet_address;
+
+      if (profileErr || !sellerAddress) {
         throw new Error("Seller has not connected a wallet yet. Payment cannot proceed.");
       }
 
-      const sellerAddress = (sellerProfile as any).wallet_address as string;
-
-      // 2. Get suggested params from Algorand testnet
-      const algodClient = new algosdk.Algodv2("", ALGORAND_TESTNET, "");
-      const suggestedParams = await algodClient.getTransactionParams().do();
-
-      // 3. Create payment transaction (price in ALGO → microAlgos)
-      const microAlgos = Math.round(priceAlgo * 1_000_000);
-
-      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      // Sign mock transaction
+      const result = await signTransaction({
         sender: accountAddress,
         receiver: sellerAddress,
-        amount: microAlgos,
-        note: new TextEncoder().encode(`CampusMarket: ${productTitle} (${productId})`),
-        suggestedParams,
+        amount: priceAlgo,
+        note: `CampusMarket: ${productTitle} (${productId})`,
       });
 
-      // 4. Sign with Pera Wallet
-      const signedTxns = await peraWallet.signTransaction([
-        [{ txn, signers: [accountAddress] }],
-      ]);
-
-      // 5. Submit to network
-      const { txid } = await algodClient.sendRawTransaction(signedTxns[0]).do();
-      setTxId(txid as string);
+      setTxId(result.txId);
       setStatus("success");
     } catch (err: any) {
-      console.error("Payment error:", err);
-      if (err?.data?.type === "SIGN_TXN_CANCELLED" || err?.message?.includes("cancelled")) {
-        setStatus("idle");
-        return;
-      }
       setError(err.message || "Payment failed. Please try again.");
       setStatus("error");
     }
@@ -93,7 +71,7 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
 
       <div className="flex items-baseline gap-3 mb-4">
         <span className="text-2xl font-black text-foreground">{priceAlgo} ALGO</span>
-        <span className="text-sm text-muted-foreground">via Algorand TestNet</span>
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-warning/10 text-warning">Demo Mode</span>
       </div>
 
       {status === "idle" && (
@@ -108,7 +86,7 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
 
       {status === "loading" && (
         <div className="w-full flex items-center justify-center gap-2 bg-muted text-muted-foreground px-6 py-3.5 rounded-xl text-sm font-semibold">
-          <Loader2 className="w-4 h-4 animate-spin" /> Waiting for wallet approval…
+          <Loader2 className="w-4 h-4 animate-spin" /> Processing transaction…
         </div>
       )}
 
@@ -117,14 +95,9 @@ const PayWithAlgo = ({ productId, priceAlgo, sellerUserId, productTitle }: PayWi
           <div className="flex items-center gap-2 text-primary font-semibold">
             <CheckCircle2 className="w-5 h-5" /> Payment Successful!
           </div>
-          <a
-            href={`https://testnet.explorer.perawallet.app/tx/${txId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block text-sm text-secondary hover:underline break-all"
-          >
-            View transaction: {txId.slice(0, 12)}…
-          </a>
+          <p className="text-sm text-muted-foreground break-all">
+            Transaction ID: <span className="font-mono text-foreground">{txId.slice(0, 16)}…</span>
+          </p>
           <button
             onClick={() => { setStatus("idle"); setTxId(null); }}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
