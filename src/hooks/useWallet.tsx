@@ -3,12 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import algosdk from "algosdk";
 
+interface AsaOptions {
+  assetIndex: number;
+  usdcAmount: number;
+}
+
 interface WalletContextType {
   accountAddress: string | null;
   isConnecting: boolean;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
-  signAndSendPayment: (receiverAddress: string, amountAlgo: number, note?: string) => Promise<{ txId: string }>;
+  signAndSendPayment: (receiverAddress: string, amountAlgo: number, note?: string, asaOptions?: AsaOptions) => Promise<{ txId: string }>;
 }
 
 const WalletContext = createContext<WalletContextType>({
@@ -104,28 +109,38 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     receiverAddress: string,
     amountAlgo: number,
     note?: string,
+    asaOptions?: AsaOptions,
   ): Promise<{ txId: string }> => {
     if (!accountAddress || !secretKey) {
       throw new Error("Wallet not connected");
     }
 
-    // Get suggested params
     const suggestedParams = await algodClient.getTransactionParams().do();
-    const microAlgos = Math.round(amountAlgo * 1_000_000);
 
-    // Create payment transaction
-    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      sender: accountAddress,
-      receiver: receiverAddress,
-      amount: microAlgos,
-      note: note ? new TextEncoder().encode(note) : undefined,
-      suggestedParams,
-    });
+    let txn;
+    if (asaOptions) {
+      // ASA (e.g. USDC) transfer
+      txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        sender: accountAddress,
+        receiver: receiverAddress,
+        amount: asaOptions.usdcAmount,
+        assetIndex: asaOptions.assetIndex,
+        note: note ? new TextEncoder().encode(note) : undefined,
+        suggestedParams,
+      });
+    } else {
+      // Native ALGO transfer
+      const microAlgos = Math.round(amountAlgo * 1_000_000);
+      txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        sender: accountAddress,
+        receiver: receiverAddress,
+        amount: microAlgos,
+        note: note ? new TextEncoder().encode(note) : undefined,
+        suggestedParams,
+      });
+    }
 
-    // Sign locally with the stored secret key
     const signedTxn = txn.signTxn(secretKey);
-
-    // Submit to Algorand TestNet
     const { txid } = await algodClient.sendRawTransaction(signedTxn).do();
 
     return { txId: txid as string };
