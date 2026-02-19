@@ -11,6 +11,7 @@ import AuthPage from "./pages/AuthPage";
 import SellPage from "./pages/SellPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProductPage from "./pages/ProductPage";
+import CartPage from "./pages/CartPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/sell" element={<SellPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/cart" element={<CartPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
