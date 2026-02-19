@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -36,14 +36,14 @@
 
     --radius: 0.75rem;
 
-    --hero-gradient-start: 214 80% 92%;
-    --hero-gradient-end: 200 70% 88%;
-    --hero-gradient: linear-gradient(135deg, hsl(214 80% 92%), hsl(200 70% 88%), hsl(180 50% 92%));
+    --hero-gradient: linear-gradient(135deg, hsl(214 85% 58%), hsl(200 75% 50%), hsl(180 60% 45%));
 
     --shadow-soft: 0 2px 12px -2px hsl(214 40% 70% / 0.25);
-    --shadow-card: 0 4px 20px -4px hsl(214 40% 70% / 0.2);
-    --shadow-card-hover: 0 12px 32px -8px hsl(214 40% 70% / 0.35);
-    --shadow-navbar: 0 4px 24px -4px hsl(214 40% 70% / 0.15);
+    --shadow-card: 0 4px 24px -4px hsl(214 50% 60% / 0.15), 0 1px 3px hsl(214 40% 70% / 0.1);
+    --shadow-card-hover: 0 20px 40px -12px hsl(214 50% 60% / 0.3), 0 4px 12px hsl(214 40% 70% / 0.15);
+    --shadow-navbar: 0 4px 30px -4px hsl(214 50% 60% / 0.12);
+    --shadow-glow-green: 0 8px 30px -6px hsl(152 60% 42% / 0.4);
+    --shadow-glow-blue: 0 8px 30px -6px hsl(214 80% 55% / 0.3);
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 30% 15%;
@@ -114,5 +114,39 @@
   }
   .shadow-navbar {
     box-shadow: var(--shadow-navbar);
+  }
+  .shadow-glow-green {
+    box-shadow: var(--shadow-glow-green);
+  }
+  .shadow-glow-blue {
+    box-shadow: var(--shadow-glow-blue);
+  }
+  .glass {
+    background: hsl(0 0% 100% / 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .glass-strong {
+    background: hsl(0 0% 100% / 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  .gradient-text-blue {
+    background: linear-gradient(135deg, hsl(214 80% 55%), hsl(200 75% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-text-green {
+    background: linear-gradient(135deg, hsl(152 60% 42%), hsl(170 60% 40%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 20% 80%, hsl(214 80% 92% / 0.6) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, hsl(152 60% 90% / 0.4) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsl(200 70% 95% / 0.3) 0px, transparent 70%);
   }
 }
