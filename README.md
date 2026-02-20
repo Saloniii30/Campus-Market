@@ -1,6 +1,9 @@
 # Campus Market
 Campus Market is a campus-focused marketplace platform where students can buy and sell products within their college ecosystem using modern web technologies.
-URL : https://campus-market-lilac.vercel.app/
+
+Live Demo Link : https://campus-market-lilac.vercel.app/
+
+Linkedin video link: https://www.linkedin.com/posts/saloni-sharma-33a4433b2_rift26-algorand-pwioi-ugcPost-7430430018100412416-ECQ1?utm_source=share&utm_medium=member_android&rcm=ACoAAGTM6h4BwV3zYaa1ePtctRBA8X0u4nwxAZc
 
 ---
 
@@ -44,3 +47,9 @@ Crypto Campus Link solves this by providing a secure, student-friendly marketpla
 ### Blockchain (Optional)
 - Algorand
 - Pera Wallet
+
+### Team Members
+1. Saloni Sharma (Leader)
+2. Md. Jawed Atahar
+3. Md. Junaid Haider
+4. Sneha Verma
