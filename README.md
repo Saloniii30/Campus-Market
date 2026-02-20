@@ -8,8 +8,6 @@ Live Demo Link : https://campus-market-lilac.vercel.app/
 
 Linkedin video link: https://www.linkedin.com/posts/saloni-sharma-33a4433b2_rift26-algorand-pwioi-ugcPost-7430430018100412416-ECQ1?utm_source=share&utm_medium=member_android&rcm=ACoAAGTM6h4BwV3zYaa1ePtctRBA8X0u4nwxAZc
 
-App Id: ZN2A...7WNY (TestNet)
-
 ---
 
 ## Problem Statement
