@@ -1,6 +1,6 @@
-# Crypto Campus Link
-
-Crypto Campus Link is a campus-focused marketplace platform where students can buy and sell products within their college ecosystem using modern web technologies.
+# Campus Market
+Campus Market is a campus-focused marketplace platform where students can buy and sell products within their college ecosystem using modern web technologies.
+URL : https://campus-market-lilac.vercel.app/
 
 ---
 
